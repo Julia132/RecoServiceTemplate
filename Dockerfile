@@ -2,15 +2,10 @@ FROM python:3.8-buster as build
 
 COPY . .
 
-RUN pip install -U --no-cache-dir pip poetry setuptools wheel && \
-    poetry build -f wheel && \
-    poetry export -f requirements.txt -o requirements.txt --without-hashes && \
-    pip wheel -w dist -r requirements.txt
-
-
 FROM python:3.8-slim-buster as runtime
 
 WORKDIR /usr/src/app
+COPY --from=build data ./
 
 ENV PYTHONOPTIMIZE true
 ENV DEBIAN_FRONTEND noninteractive
@@ -19,11 +14,15 @@ ENV DEBIAN_FRONTEND noninteractive
 ENV TZ=UTC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-COPY --from=build dist dist
-COPY --from=build main.py gunicorn.config.py ./
+RUN mkdir service
+COPY --from=build service ./service
+COPY --from=build requirements.txt main.py gunicorn.config.py ./
 
+RUN apt update
+RUN apt install gcc -y
+RUN pip install --upgrade pip
+RUN pip install --upgrade setuptools
 
-RUN pip install -U --no-cache-dir pip dist/*.whl && \
-    rm -rf dist
+RUN pip install -r requirements.txt
 
-CMD ["gunicorn", "main:app", "-c", "gunicorn.config.py"]
+CMD ["uvicorn", "main:app", "--port", "8080", "--host", "0.0.0.0"]

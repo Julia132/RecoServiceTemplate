@@ -5,3 +5,5 @@
 !poetry.lock
 !pyproject.toml
 !README.md
+!data
+!requirements.txt

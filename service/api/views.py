@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 from service.api.exceptions import ModelNotFoundError, UserNotFoundError
 from service.log import app_logger
+from service.model.recsys_models import LightFM
 from service.utils import verify_token
 
 
@@ -52,6 +53,9 @@ async def get_reco(
 
     if model_name == "rec_model_test":
         k_recs = request.app.state.k_recs
+    elif model_name == "light_fm":
+        light_fm = LightFM(path="lightfm_0.076000.dill", name_for_bot="light_fm")
+        k_recs = light_fm.get_rec(user_id)
     else:
         raise ModelNotFoundError(error_message=f"Model {model_name} not found")
 
