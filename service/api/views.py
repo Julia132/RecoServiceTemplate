@@ -5,6 +5,8 @@ from pydantic import BaseModel
 
 from service.api.exceptions import UserNotFoundError
 from service.log import app_logger
+from service.model.recsys_models import LightFM
+from service.utils import verify_token
 
 
 class RecoResponse(BaseModel):
@@ -40,9 +42,13 @@ async def get_reco(
     if user_id > 10**9:
         raise UserNotFoundError(error_message=f"User {user_id} not found")
 
-    k_recs = request.app.state.k_recs
-    reco = list(range(k_recs))
-    return RecoResponse(user_id=user_id, items=reco)
+    if model_name == "rec_model_test":
+        k_recs = request.app.state.k_recs
+    elif model_name == "blending":
+        blening = LightFM(path="blending", name_for_bot="blending")
+        k_recs = blening.get_rec(user_id)
+
+    return RecoResponse(user_id=user_id, items=list(range(k_recs)))
 
 
 def add_views(app: FastAPI) -> None:
