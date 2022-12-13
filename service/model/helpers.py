@@ -1,5 +1,3 @@
-
-
 def find_difference(recs, pop_covered):
     """
     Функция ищет разницу между двумя списками. Таким образом не допускаем повторения в рекомендациях.
@@ -20,7 +18,7 @@ def blending(model_1, model_2, user, N, pop_covered):
     recs_2 = model_2.similar_items(user, N + 1)[1:]
     recs = recs_1 + recs_2
 
-    if len(recs)> 0:
+    if len(recs) > 0:
         recs.sort(key=lambda x: x[1], reverse=True)
         recs_sort = [element[0] for element in recs]
         recs_one = []
