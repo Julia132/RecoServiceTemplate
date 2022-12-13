@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 from service.api.exceptions import ModelNotFoundError, UserNotFoundError
 from service.log import app_logger
-from service.model.recsys_models import LightFM
+from service.model.recsys_models import BlendingModel
 from service.utils import verify_token
 
 
@@ -54,7 +54,7 @@ async def get_reco(
     if model_name == "rec_model_test":
         k_recs = request.app.state.k_recs
     elif model_name == "blending":
-        blening = LightFM(path="blending", name_for_bot="blending")
+        blening = BlendingModel(path="cosine_itemknn.dill", name_for_bot="blending")
         k_recs = blening.get_rec(user_id)
     else:
         raise ModelNotFoundError(error_message=f"Model {model_name} not found")

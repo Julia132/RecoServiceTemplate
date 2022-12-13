@@ -1,5 +1,6 @@
 import dill
-from helpers import blending
+
+from service.model.helpers import blending
 
 
 class BaseRecSysModel:
@@ -17,9 +18,6 @@ class BlendingModel(BaseRecSysModel):
 
     def __init__(self, path, name_for_bot):
         super().__init__(path, name_for_bot)
-        with open("cosine_itemknn.dill", "rb") as f:
-            self.cosine_model = dill.load(f)
-
         with open("tfidf_itemknn.dill", "rb") as f:
             self.tfidf_model = dill.load(f)
 
@@ -28,7 +26,7 @@ class BlendingModel(BaseRecSysModel):
 
     def get_rec(self, user_id):
         return blending(
-            self.cosine_model,
+            self.model,
             self.tfidf_model,
             user_id,
             BlendingModel.N,
